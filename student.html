@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Acadia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <h1>Acadia</h1>
+                    <span class="logo-tagline">Student Living</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="student.html" class="nav-link active">Student Portal</a>
+                    <a href="owner.html" class="nav-link">Owner Portal</a>
+                    <button class="btn btn-small" id="studentLogoutBtn" style="display: none;">Logout</button>
+                </div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Student Login/Register Section -->
+    <section class="auth-section" id="authSection">
+        <div class="container">
+            <div class="auth-wrapper">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="register">Register</button>
+                </div>
+
+                <!-- Login Form -->
+                <div class="auth-form active" id="loginForm">
+                    <h2>Student Login</h2>
+                    <p class="auth-subtitle">Welcome back! Login to search for hostels.</p>
+                    <form id="studentLoginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" name="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" name="password" required placeholder="Enter your password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Login</button>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div class="auth-form" id="registerForm">
+                    <h2>Student Registration</h2>
+                    <p class="auth-subtitle">Create an account to start searching for your perfect stay.</p>
+                    <form id="studentRegisterForm">
+                        <div class="form-group">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" id="registerName" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">Email Address</label>
+                            <input type="email" id="registerEmail" name="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" name="password" required placeholder="Create a password" minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerConfirmPassword">Confirm Password</label>
+                            <input type="password" id="registerConfirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Student Dashboard -->
+    <section class="dashboard" id="studentDashboard" style="display: none;">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Find Your Perfect Hostel</h1>
+                <p>Browse through verified hostels and PGs near UPES</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-filter-section">
+                <div class="search-bar-wrapper">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by hostel name or location...">
+                    <button class="btn btn-primary" id="searchBtn">Search</button>
+                </div>
+
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label>Budget Range</label>
+                        <div class="budget-inputs">
+                            <input type="number" id="minBudget" placeholder="Min" class="filter-input">
+                            <span>-</span>
+                            <input type="number" id="maxBudget" placeholder="Max" class="filter-input">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Hostel Type</label>
+                        <select id="hostelType" class="filter-select">
+                            <option value="">All</option>
+                            <option value="boys">Boys</option>
+                            <option value="girls">Girls</option>
+                            <option value="co-ed">Co-ed</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Food Availability</label>
+                        <select id="foodAvailability" class="filter-select">
+                            <option value="">Any</option>
+                            <option value="yes">Available</option>
+                            <option value="no">Not Available</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Amenities</label>
+                        <div class="amenities-checkboxes">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="wifi" class="amenity-checkbox"> WiFi
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="laundry" class="amenity-checkbox"> Laundry
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="parking" class="amenity-checkbox"> Parking
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="ac" class="amenity-checkbox"> AC
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>In-Time</label>
+                        <select id="inTime" class="filter-select">
+                            <option value="">Any</option>
+                            <option value="10pm">10:00 PM</option>
+                            <option value="11pm">11:00 PM</option>
+                            <option value="12am">12:00 AM</option>
+                            <option value="flexible">Flexible</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-secondary" id="applyFilters">Apply Filters</button>
+                    <button class="btn btn-outline" id="resetFilters">Reset</button>
+                </div>
+            </div>
+
+            <!-- Hostel Listings -->
+            <div class="hostel-listings" id="hostelListings">
+                <!-- Listings will be dynamically generated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Hostel Detail View -->
+    <section class="hostel-detail" id="hostelDetail" style="display: none;">
+        <div class="container">
+            <button class="btn btn-outline" id="backToListings">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Listings
+            </button>
+
+            <div class="detail-content" id="detailContent">
+                <!-- Detail content will be dynamically generated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 class="footer-title">Acadia</h3>
+                    <p class="footer-description">Simplifying student accommodation search for UPES students.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="student.html">Student Portal</a></li>
+                        <li><a href="owner.html">Owner Portal</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-heading">Contact</h4>
+                    <ul class="footer-contact">
+                        <li>UPES Campus Area</li>
+                        <li>Bidholi, Dehradun</li>
+                        <li>Email: info@acadia.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Acadia. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Portal - Acadia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <h1>Acadia</h1>
+                    <span class="logo-tagline">Student Living</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="student.html" class="nav-link">Student Portal</a>
+                    <a href="owner.html" class="nav-link active">Owner Portal</a>
+                    <button class="btn btn-small" id="ownerLogoutBtn" style="display: none;">Logout</button>
+                </div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Owner Login/Register Section -->
+    <section class="auth-section" id="ownerAuthSection">
+        <div class="container">
+            <div class="auth-wrapper">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="owner-login">Login</button>
+                    <button class="auth-tab" data-tab="owner-register">Register</button>
+                </div>
+
+                <!-- Login Form -->
+                <div class="auth-form active" id="ownerLoginForm">
+                    <h2>Owner Login</h2>
+                    <p class="auth-subtitle">Login to manage your hostel listings.</p>
+                    <form id="ownerLoginFormSubmit">
+                        <div class="form-group">
+                            <label for="ownerLoginEmail">Email Address</label>
+                            <input type="email" id="ownerLoginEmail" name="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerLoginPassword">Password</label>
+                            <input type="password" id="ownerLoginPassword" name="password" required placeholder="Enter your password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Login</button>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div class="auth-form" id="ownerRegisterForm">
+                    <h2>Owner Registration</h2>
+                    <p class="auth-subtitle">Register to list your hostel or PG on Acadia.</p>
+                    <form id="ownerRegisterFormSubmit">
+                        <div class="form-group">
+                            <label for="ownerRegisterName">Full Name</label>
+                            <input type="text" id="ownerRegisterName" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerRegisterEmail">Email Address</label>
+                            <input type="email" id="ownerRegisterEmail" name="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerRegisterPhone">Phone Number</label>
+                            <input type="tel" id="ownerRegisterPhone" name="phone" required placeholder="Enter your phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerRegisterPassword">Password</label>
+                            <input type="password" id="ownerRegisterPassword" name="password" required placeholder="Create a password" minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerRegisterConfirmPassword">Confirm Password</label>
+                            <input type="password" id="ownerRegisterConfirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Owner Dashboard -->
+    <section class="owner-dashboard" id="ownerDashboard" style="display: none;">
+        <div class="container">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Owner Dashboard</h1>
+                    <p>Manage your hostel listings</p>
+                </div>
+                <button class="btn btn-primary" id="showAddListingForm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add New Hostel
+                </button>
+            </div>
+
+            <!-- Owner's Listings -->
+            <div class="owner-listings" id="ownerListings">
+                <h2>Your Listings</h2>
+                <div class="listings-grid" id="ownerListingsGrid">
+                    <!-- Listings will be dynamically generated -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add/Edit Listing Form -->
+    <section class="add-listing-section" id="addListingSection" style="display: none;">
+        <div class="container">
+            <button class="btn btn-outline" id="backToDashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Dashboard
+            </button>
+
+            <div class="add-listing-wrapper">
+                <h2 id="listingFormTitle">Add New Hostel</h2>
+                <form id="addListingForm">
+                    <input type="hidden" id="editListingId" value="">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hostelName">Hostel/PG Name *</label>
+                            <input type="text" id="hostelName" name="hostelName" required placeholder="Enter hostel name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hostelPrice">Price per Month (₹) *</label>
+                            <input type="number" id="hostelPrice" name="price" required placeholder="e.g., 8000">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hostelTypeSelect">Hostel Type *</label>
+                            <select id="hostelTypeSelect" name="type" required>
+                                <option value="">Select Type</option>
+                                <option value="boys">Boys</option>
+                                <option value="girls">Girls</option>
+                                <option value="co-ed">Co-ed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hostelLocation">Location *</label>
+                            <input type="text" id="hostelLocation" name="location" required placeholder="e.g., Near UPES Gate 2">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hostelDescription">Description *</label>
+                        <textarea id="hostelDescription" name="description" required rows="4" placeholder="Describe your hostel/PG..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amenities</label>
+                        <div class="amenities-grid">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="WiFi"> WiFi
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="Laundry"> Laundry
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="Parking"> Parking
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="AC"> AC
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="Hot Water"> Hot Water
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="Security"> 24/7 Security
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="CCTV"> CCTV
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="amenities" value="Power Backup"> Power Backup
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="foodAvailabilitySelect">Food Availability *</label>
+                            <select id="foodAvailabilitySelect" name="food" required>
+                                <option value="">Select Option</option>
+                                <option value="yes">Available</option>
+                                <option value="no">Not Available</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inTimeSelect">In-Time *</label>
+                            <select id="inTimeSelect" name="inTime" required>
+                                <option value="">Select In-Time</option>
+                                <option value="10pm">10:00 PM</option>
+                                <option value="11pm">11:00 PM</option>
+                                <option value="12am">12:00 AM</option>
+                                <option value="flexible">Flexible</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hostelRules">Rules and Regulations</label>
+                        <textarea id="hostelRules" name="rules" rows="4" placeholder="List any house rules (optional)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hostelImages">Upload Images</label>
+                        <input type="file" id="hostelImages" name="images" accept="image/*" multiple>
+                        <small class="form-help">You can select multiple images</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Listing</button>
+                        <button type="button" class="btn btn-outline" id="cancelListing">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 class="footer-title">Acadia</h3>
+                    <p class="footer-description">Simplifying student accommodation search for UPES students.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="student.html">Student Portal</a></li>
+                        <li><a href="owner.html">Owner Portal</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 class="footer-heading">Contact</h4>
+                    <ul class="footer-contact">
+                        <li>UPES Campus Area</li>
+                        <li>Bidholi, Dehradun</li>
+                        <li>Email: info@acadia.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Acadia. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
