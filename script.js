@@ -511,6 +511,22 @@ function initOwnerPortal() {
     if (ownerAuthSection) ownerAuthSection.style.display = 'none';
     if (ownerDashboard)   ownerDashboard.style.display = 'block';
     if (ownerLogoutBtn)   ownerLogoutBtn.style.display = 'block';
+
+    const isAdmin = currentUser.role === 'admin';
+
+    // Hide "Add New Hostel" button for admin — admin only deletes
+    const addBtn = document.getElementById('showAddListingForm');
+    if (addBtn) addBtn.style.display = isAdmin ? 'none' : 'flex';
+
+    // Update dashboard heading for admin
+    const dashHeader = ownerDashboard.querySelector('.dashboard-header h1');
+    const dashSubtitle = ownerDashboard.querySelector('.dashboard-header p');
+    if (isAdmin && dashHeader) dashHeader.textContent = '🛡️ Admin Panel';
+    if (isAdmin && dashSubtitle) dashSubtitle.textContent = 'Review and remove listings that are not authentic';
+
+    const listingsHeading = document.querySelector('#ownerListings h2');
+    if (isAdmin && listingsHeading) listingsHeading.textContent = 'All Listings';
+
     renderOwnerListings();
   }
 
@@ -519,7 +535,9 @@ function initOwnerPortal() {
     const ownerListingsGrid = document.getElementById('ownerListingsGrid');
     if (!ownerListingsGrid || !currentUser) return;
 
-    ownerListingsGrid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading your listings...</p>';
+    const isAdmin = currentUser.role === 'admin';
+
+    ownerListingsGrid.innerHTML = `<p style="text-align:center;color:var(--text-secondary);">Loading ${isAdmin ? 'all' : 'your'} listings...</p>`;
 
     const result = await apiFetch('/api/hostels');
 
@@ -528,15 +546,19 @@ function initOwnerPortal() {
       return;
     }
 
-    // Show only THIS owner's listings
-    const myListings = result.data.filter(h => h.ownerEmail === currentUser.email);
+    // Admin sees ALL listings, owner sees only their own
+    const listings = isAdmin
+      ? result.data
+      : result.data.filter(h => h.ownerEmail === currentUser.email);
 
-    if (myListings.length === 0) {
-      ownerListingsGrid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No listings yet. Click "Add New Hostel" to create your first listing.</p>';
+    if (listings.length === 0) {
+      ownerListingsGrid.innerHTML = isAdmin
+        ? '<p style="text-align:center;color:var(--text-secondary);">No listings posted yet.</p>'
+        : '<p style="text-align:center;color:var(--text-secondary);">No listings yet. Click "Add New Hostel" to create your first listing.</p>';
       return;
     }
 
-    ownerListingsGrid.innerHTML = myListings.map(listing => `
+    ownerListingsGrid.innerHTML = listings.map(listing => `
       <div class="owner-listing-card">
         <div class="listing-card-header">
           <div>
@@ -544,13 +566,14 @@ function initOwnerPortal() {
             <span class="hostel-type">${listing.type.toUpperCase()}</span>
           </div>
           <div class="listing-card-actions">
+            ${!isAdmin ? `
             <button class="icon-btn edit-listing-btn" data-id="${listing._id}" title="Edit">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
-            </button>
-            <button class="icon-btn delete-listing-btn" data-id="${listing._id}" title="Delete">
+            </button>` : ''}
+            <button class="icon-btn delete-listing-btn" data-id="${listing._id}" title="Delete" style="${isAdmin ? 'color:#e53e3e;' : ''}">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -559,7 +582,8 @@ function initOwnerPortal() {
           </div>
         </div>
         <div class="hostel-price">₹${listing.price}<small>/month</small></div>
-        <p style="color:var(--text-secondary);margin:1rem 0;">${listing.location}</p>
+        ${isAdmin ? `<p style="font-size:0.8rem;color:#888;margin:0.3rem 0;">Posted by: ${listing.ownerName} (${listing.ownerEmail})</p>` : ''}
+        <p style="color:var(--text-secondary);margin:0.5rem 0;">${listing.location}</p>
         <p style="color:var(--text-secondary);">${listing.description}</p>
         <div class="hostel-amenities" style="margin-top:1rem;">
           ${listing.amenities.slice(0, 3).map(a => `<span class="amenity-tag">${a}</span>`).join('')}
@@ -568,15 +592,17 @@ function initOwnerPortal() {
       </div>
     `).join('');
 
-    // Edit buttons
-    document.querySelectorAll('.edit-listing-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const listing = myListings.find(l => l._id === btn.dataset.id);
-        if (listing) editListing(listing);
+    // Edit buttons (only for regular owners)
+    if (!isAdmin) {
+      document.querySelectorAll('.edit-listing-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const listing = listings.find(l => l._id === btn.dataset.id);
+          if (listing) editListing(listing);
+        });
       });
-    });
+    }
 
-    // Delete buttons
+    // Delete buttons (for both admin and owner)
     document.querySelectorAll('.delete-listing-btn').forEach(btn => {
       btn.addEventListener('click', () => deleteListing(btn.dataset.id));
     });
@@ -692,4 +718,128 @@ function initOwnerPortal() {
     showToast('Listing deleted successfully!');
     renderOwnerListings();
   }
+}
+
+// ==========================
+// ===== ADMIN PORTAL =======
+// ==========================
+if (window.location.pathname.includes('admin.html')) {
+  initAdminPortal();
+}
+
+function initAdminPortal() {
+  const adminAuthSection = document.getElementById('adminAuthSection');
+  const adminDashboard   = document.getElementById('adminDashboard');
+  const adminLogoutBtn   = document.getElementById('adminLogoutBtn');
+
+  // Check if already logged in
+  const savedAdmin = sessionStorage.getItem('currentAdmin');
+  if (savedAdmin) {
+    currentUser = JSON.parse(savedAdmin);
+    showAdminDashboard();
+  }
+
+  // ── Admin Login ──
+  const adminLoginFormSubmit = document.getElementById('adminLoginFormSubmit');
+  if (adminLoginFormSubmit) {
+    adminLoginFormSubmit.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email    = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+
+      const btn = adminLoginFormSubmit.querySelector('button[type="submit"]');
+      btn.textContent = 'Logging in...';
+      btn.disabled = true;
+
+      const result = await apiFetch('/api/auth?action=login', {
+        method: 'POST',
+        body: { email, password }
+      });
+
+      btn.textContent = 'Login as Admin';
+      btn.disabled = false;
+
+      if (!result.success) return showToast(result.error || 'Login failed', true);
+      if (result.data.role !== 'admin') return showToast('Access denied. Not an admin account.', true);
+
+      currentUser = result.data;
+      sessionStorage.setItem('currentAdmin', JSON.stringify(currentUser));
+      showToast('Welcome, Admin!');
+      showAdminDashboard();
+    });
+  }
+
+  // ── Logout ──
+  if (adminLogoutBtn) {
+    adminLogoutBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('currentAdmin');
+      location.reload();
+    });
+  }
+
+  function showAdminDashboard() {
+    if (adminAuthSection) adminAuthSection.style.display = 'none';
+    if (adminDashboard)   adminDashboard.style.display = 'block';
+    if (adminLogoutBtn)   adminLogoutBtn.style.display = 'block';
+    loadAllListingsForAdmin();
+  }
+
+  async function loadAllListingsForAdmin() {
+    const grid = document.getElementById('adminListingsGrid');
+    const totalCount = document.getElementById('totalCount');
+    if (!grid) return;
+
+    grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading all listings...</p>';
+
+    const result = await apiFetch('/api/hostels');
+    if (!result.success) {
+      grid.innerHTML = '<p style="text-align:center;color:red;">Failed to load listings.</p>';
+      return;
+    }
+
+    const listings = result.data;
+    if (totalCount) totalCount.textContent = listings.length;
+
+    if (listings.length === 0) {
+      grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No listings yet.</p>';
+      return;
+    }
+
+    grid.innerHTML = listings.map(listing => `
+      <div class="owner-listing-card" style="border-left: 4px solid #e53e3e;">
+        <div class="listing-card-header">
+          <div>
+            <h3>${listing.name}</h3>
+            <span class="hostel-type">${listing.type.toUpperCase()}</span>
+          </div>
+          <button class="btn btn-small" style="background:#e53e3e;color:white;border:none;cursor:pointer;"
+            onclick="adminDeleteListing('${listing._id}')">
+            🗑 Delete
+          </button>
+        </div>
+        <div class="hostel-price">₹${listing.price}<small>/month</small></div>
+        <p style="color:var(--text-secondary);margin:0.5rem 0;">📍 ${listing.location}</p>
+        <p style="color:var(--text-secondary);margin:0.5rem 0;">👤 Owner: ${listing.ownerName} (${listing.ownerEmail})</p>
+        <p style="color:var(--text-secondary);margin:0.5rem 0;">${listing.description}</p>
+        <div class="hostel-amenities" style="margin-top:0.5rem;">
+          ${listing.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Global function so onclick can reach it
+  window.adminDeleteListing = async function(listingId) {
+    if (!confirm('Are you sure you want to delete this listing? This cannot be undone.')) return;
+
+    const result = await apiFetch(`/api/hostel/${listingId}`, {
+      method: 'DELETE',
+      body: { ownerEmail: 'admin@acadia.com' }
+    });
+
+    if (!result.success) return showToast(result.error || 'Failed to delete', true);
+
+    showToast('Listing removed by admin!');
+    loadAllListingsForAdmin();
+  };
 }
