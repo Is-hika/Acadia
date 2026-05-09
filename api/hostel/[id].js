@@ -38,7 +38,12 @@ export default async function handler(req, res) {
       const { ownerEmail } = req.body;
       const hostel = await Hostel.findById(id);
       if (!hostel) return res.status(404).json({ success: false, error: 'Not found' });
-      if (hostel.ownerEmail !== ownerEmail) return res.status(403).json({ success: false, error: 'Unauthorized' });
+
+      // Admin can delete any listing, owner can only delete their own
+      const isAdmin = ownerEmail === 'admin@acadia.com';
+      if (!isAdmin && hostel.ownerEmail !== ownerEmail)
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+
       await Hostel.findByIdAndDelete(id);
       return res.status(200).json({ success: true, message: 'Deleted' });
     } catch (err) {
