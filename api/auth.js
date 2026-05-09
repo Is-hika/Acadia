@@ -1,6 +1,11 @@
 import connectDB from '../lib/mongodb.js';
 import User from '../lib/User.js';
 
+// ===== ADMIN CREDENTIALS (hardcoded, never stored in DB) =====
+const ADMIN_EMAIL    = 'admin@acadia.com';
+const ADMIN_PASSWORD = 'Acadia@Admin123';
+// ============================================================
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -17,6 +22,10 @@ export default async function handler(req, res) {
       if (!name || !email || !password || !role)
         return res.status(400).json({ success: false, error: 'Missing required fields' });
 
+      // Block anyone from registering with admin email
+      if (email === ADMIN_EMAIL)
+        return res.status(403).json({ success: false, error: 'This email is reserved' });
+
       const existing = await User.findOne({ email, role });
       if (existing)
         return res.status(409).json({ success: false, error: 'Email already registered' });
@@ -31,8 +40,22 @@ export default async function handler(req, res) {
   if (action === 'login') {
     try {
       const { email, password, role } = req.body;
-      if (!email || !password || !role)
+      if (!email || !password)
         return res.status(400).json({ success: false, error: 'Missing fields' });
+
+      // ── ADMIN LOGIN (no DB lookup needed) ──
+      if (email === ADMIN_EMAIL) {
+        if (password !== ADMIN_PASSWORD)
+          return res.status(401).json({ success: false, error: 'Incorrect admin password' });
+        return res.status(200).json({
+          success: true,
+          data: { name: 'Admin', email: ADMIN_EMAIL, role: 'admin' }
+        });
+      }
+
+      // ── REGULAR USER LOGIN ──
+      if (!role)
+        return res.status(400).json({ success: false, error: 'Missing role' });
 
       const user = await User.findOne({ email, role });
       if (!user)
